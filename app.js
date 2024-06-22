@@ -32,6 +32,7 @@ app.set("views", __dirname + "/views");
 // );
 
 // app.use(helmet());
+app.use(cors());
 app.use(express.json());
 app.use(logger(MORGAN_FORMAT));
 app.use(express.urlencoded({ extended: true }));
