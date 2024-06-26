@@ -191,7 +191,6 @@ const notification = async (req, res) => {
     };
 
     let datas = await snap.transaction.notification(notification);
-    console.log(datas);
 
     await prisma.ticketTransaction.update({
         where: {
@@ -821,7 +820,6 @@ const creditCard = async (req, res, next) => {
 
             await prisma.$transaction(async (tx) => {
                 const response = await coreApi.charge(parameter);
-
                 const transaction = await tx.ticketTransaction.create({
                     data: {
                         userId: req.user.id, // req.user.id (from user loggedIn)
@@ -1038,31 +1036,28 @@ const getAllTransactionByUserLoggedIn = async (req, res, next) => {
     // get all transaction data from ticketTransaction & include ticketTransaction detail
 
     try {
-        let { dateOfDeparture, returnDate, flightCode } = req.query;
+        let { startDate, endDate, flightCode } = req.query;
 
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 10;
         const offset = (page - 1) * limit;
 
-        const parsedDepartureDate = new Date(dateOfDeparture);
-        const parsedReturnDate = new Date(returnDate);
+        const parseStartDate = new Date(startDate);
+        const parseEndDate = new Date(endDate);
 
-        let flightCondition = {
-            code: {
-                contains: flightCode,
-                mode: "insensitive",
-            },
-        };
+        let transactionCondition;
+        let flightCondition;
 
-        if (dateOfDeparture || returnDate) {
+        if (startDate || endDate) {
+            transactionCondition = {
+                userId: req.user.id,
+                bookingDate: {
+                    gte: new Date(parseStartDate.setHours(0, 0, 0, 0)),
+                    lt: new Date(parseEndDate.setHours(23, 59, 59, 0)),
+                },
+            };
             if (flightCode) {
                 flightCondition = {
-                    departureDate: {
-                        gte: new Date(parsedDepartureDate.setHours(0, 0, 0, 0)),
-                    },
-                    arrivalDate: {
-                        lt: new Date(parsedReturnDate.setHours(23, 59, 59, 0)),
-                    },
                     code: {
                         contains: flightCode,
                         mode: "insensitive",
@@ -1090,9 +1085,7 @@ const getAllTransactionByUserLoggedIn = async (req, res, next) => {
                     },
                 },
             },
-            where: {
-                userId: req.user.id,
-            },
+            where: transactionCondition,
         });
 
         const count = await prisma.ticketTransaction.count({
