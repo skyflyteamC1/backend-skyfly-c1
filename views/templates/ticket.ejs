@@ -50,7 +50,6 @@
             .ticket-section h4 {
                 margin-bottom: 10px;
                 font-size: 1.1rem;
-                border-bottom: 1px solid #ccc;
                 padding-bottom: 5px;
             }
             .ticket p {
@@ -68,7 +67,10 @@
                 align-items: flex-start;
             }
             .ticket-details div {
-                width: 48%;
+                width: 100%;
+            }
+            .table th {
+                font-weight: normal;
             }
         </style>
     </head>
@@ -88,8 +90,9 @@
                         alt="Logo"
                     />
                 </div>
-                <% if (data.length > 0) { %> <% data.forEach((ticket, index) =>
-                { %>
+                <% if (data.length > 0) { %> <% for (let ticketIndex = 0;
+                ticketIndex < data.length; ticketIndex++) { let ticket =
+                data[ticketIndex]; %>
                 <div class="ticket">
                     <div class="ticket-header">
                         <h1>Boarding Pass</h1>
@@ -130,66 +133,99 @@
                             ticket.flight.destinationAirport.country %>
                         </p>
                     </div>
+                    <h4>Passenger Detail:</h4>
                     <div class="ticket-section ticket-details">
-                        <div>
-                            <h4>Passenger Detail:</h4>
-                            <p>
-                                <strong>User Name:</strong> <%= ticket.user.name
+                        <% if (ticket.ticketTransaction &&
+                        ticket.ticketTransaction.Transaction_Detail &&
+                        ticket.ticketTransaction.Transaction_Detail.length >
+                        0) { %>
+                        <table
+                            class="table table-bordered table-striped"
+                        >
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Name</th>
+                                    <th>Family Name</th>
+                                    <th>Citizenship</th>
+                                    <th>Issuing Country</th>
+                                    <th>Passport</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% for (let detailIndex = 0; detailIndex <
+                                ticket.ticketTransaction.Transaction_Detail.length;
+                                detailIndex++) { let detail =
+                                ticket.ticketTransaction.Transaction_Detail[detailIndex];
                                 %>
-                            </p>
-                            <% if (ticket.ticketTransaction &&
-                            ticket.ticketTransaction.Transaction_Detail &&
-                            ticket.ticketTransaction.Transaction_Detail.length >
-                            0) { %>
-                            <p>
-                                <strong>Family Name:</strong> <%=
-                                ticket.ticketTransaction.Transaction_Detail[0].familyName
-                                %>
-                            </p>
-                            <p>
-                                <strong>Citizenship:</strong> <%=
-                                ticket.ticketTransaction.Transaction_Detail[0].citizenship
-                                %>
-                            </p>
-                            <p>
-                                <strong>Issuing Country:</strong> <%=
-                                ticket.ticketTransaction.Transaction_Detail[0].issuingCountry
-                                %>
-                            </p>
-                            <p>
-                                <strong>Passport:</strong> <%=
-                                ticket.ticketTransaction.Transaction_Detail[0].passport
-                                %>
-                            </p>
-                            <p>
-                                <strong>Price:</strong> <%=
-                                ticket.ticketTransaction.Transaction_Detail[0].price
-                                %>
-                            </p>
-                            <% } else { %>
-                            <p>
-                                No detailed transaction information available.
-                            </p>
-                            <% } %>
-                        </div>
-                        <div>
-                            <h4>Flight Detail:</h4>
-                            <p>
-                                <strong>Airline:</strong> <%=
-                                ticket.flight.plane.name %>
-                            </p>
-                            <p>
-                                <strong>Seat Number:</strong> <%=
-                                ticket.seat.seatNumber %>
-                            </p>
-                            <p>
-                                <strong>Seat Type:</strong> <%= ticket.seat.type
-                                %>
-                            </p>
-                        </div>
+                                <tr>
+                                    <td>
+                                        <%= detailIndex + 1 %>
+                                    </td>
+                                    <td><%= detail.name %></td>
+                                    <td><%= detail.familyName %></td>
+                                    <td><%= detail.citizenship %></td>
+                                    <td>
+                                        <%= detail.issuingCountry %>
+                                    </td>
+                                    <td><%= detail.passport %></td>
+                                </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                        <% } else { %>
+                        <p>
+                            No detailed transaction information available.
+                        </p>
+                        <% } %>
                     </div>
+                    <h4>Flight Detail:</h4>
+                    <div class="ticket-section ticket-details">
+                        <% if (ticket.ticketTransaction &&
+                        ticket.ticketTransaction.Transaction_Detail &&
+                        ticket.ticketTransaction.Transaction_Detail.length >
+                        0) { %>
+                        <table
+                            class="table table-bordered table-striped"
+                        >
+                            <thead class="table-light">
+                                <tr>
+                                    <th>no</th>
+                                    <th>Seat Number</th>
+                                    <th>Seat Type</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% for (let detailIndex = 0; detailIndex <
+                                ticket.ticketTransaction.Transaction_Detail.length;
+                                detailIndex++) { let detail =
+                                ticket.ticketTransaction.Transaction_Detail[detailIndex];
+                                let matchingSeat = seats.find(seat =>
+                                seat.id === detail.seatId); %>
+                                <tr>
+                                    <td>
+                                        <%= detailIndex + 1 %>
+                                    </td>
+                                    <td>
+                                        <%= matchingSeat ?
+                                        matchingSeat.seatNumber : "N/A" %>
+                                    </td>
+                                    <td>
+                                        <%= matchingSeat ?
+                                        matchingSeat.type : "N/A" %>
+                                    </td>
+                                </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                        <% } %>
+                    </div>
+                    <h4>Transaction Details:</h4>
                     <div class="ticket-section">
-                        <h4>Transaction Details:</h4>
+                        <p>
+                            <strong>Airline:</strong> <%=
+                            ticket.flight.plane.name %>
+                        </p>
                         <p><strong>Orderer: </strong><%= ticket.user.name %></p>
                         <p>
                             <strong>Email: </strong><%= ticket.user.auth.email
@@ -210,7 +246,7 @@
                         </p>
                     </div>
                 </div>
-                <% }) %> <% } else { %>
+                <% } %> <% } else { %>
                 <p>No tickets found.</p>
                 <% } %>
                 <div class="row" style="margin-top: 5px">
