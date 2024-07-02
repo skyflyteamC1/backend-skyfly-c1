@@ -283,7 +283,6 @@ const deleteTicket = async (req, res, next) => {
 
 const generateTicket = async (req, res, next) => {
     try {
-        // Fetch tickets based on userId and ticketTransactionId
         const tickets = await prisma.ticket.findMany({
             where: {
                 userId: req.user.id,
@@ -318,15 +317,44 @@ const generateTicket = async (req, res, next) => {
             },
         });
 
-        // Render the view with fetched data
+        let seatsId = [];
+        let seats = [];
+console.log(req.query.ticketTransactionId)
+        tickets.forEach((ticketTransaction) => {
+            ticketTransaction.ticketTransaction.Transaction_Detail.forEach((detail) => {
+                seatsId.push(detail.seatId);
+            });
+        });
+
+        console.log(seatsId);
+
+        const fetchSeats = async () => {
+            for (const id of seatsId) {
+                try {
+                    const seat = await prisma.flightSeat.findUnique({
+                        where: {
+                            id: id,
+                        },
+                    });
+                    seats.push(seat);
+                } catch (error) {
+                    console.error(`Error fetching seat with ID ${id}:`, error);
+                }
+            }
+        };
+
+        await fetchSeats();
+
         res.render("templates/ticket.ejs", {
             data: tickets,
-            tickets: tickets, // You can omit this if data and tickets are the same
+            tickets: tickets,
+            seats: seats
         });
     } catch (error) {
         next(createHttpError(500, { message: error.message }));
     }
 };
+
 
 module.exports = {
     getAllTicket,
