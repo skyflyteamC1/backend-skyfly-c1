@@ -26,7 +26,7 @@ describe("Transaction Integration Test", () => {
     describe("getTransactionById", () => {
         it("success", async () => {
             const response = await request(baseUrl)
-                .get("/api/v1/transactions/clxygk7uc0005ctx100hsm6hn")
+                .get("/api/v1/transactions/cly60ql3r000211zafo44vsqv")
                 .set("Authorization", `Bearer ${token}`);
             expect(response.statusCode).toBe(200);
         });
@@ -36,7 +36,7 @@ describe("Transaction Integration Test", () => {
         it("success", async () => {
             const response = await request(baseUrl)
                 .get(
-                    "/api/v1/transactions/status/2ecaed1c-bfb9-4937-a151-7e16634c7385"
+                    "/api/v1/transactions/status/87718d0d-0750-4611-94d6-fa6b327b2124"
                 )
                 .set("Authorization", `Bearer ${token}`);
             expect(response.statusCode).toBe(200);
