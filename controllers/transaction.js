@@ -266,7 +266,7 @@ const notification = async (req, res) => {
             const flightCode = flights[0].code;
 
             // Create the new ticket
-            seats.map(async (seat) => {
+            const generateTicket = seats.map(async (seat) => {
                 let uniqueCode = `${airlineCode}-${airportCode}-${flightCode}-${seat.seatNumber}`;
 
                 const existingTicket = await prisma.ticket.findUnique({
@@ -290,9 +290,9 @@ const notification = async (req, res) => {
                         ticketTransactionId: dataTransaction.id,
                     },
                 });
-
-                res.status(200).json({ message: "OK" });
             });
+
+            await Promise.all(generateTicket);
         }
     } else if (datas.transaction_status == "settlement") {
         // TODO set transaction status on your database to 'success'
@@ -357,7 +357,7 @@ const notification = async (req, res) => {
         const flightCode = flights[0].code;
 
         // Create the new ticket
-        seats.map(async (seat) => {
+        const generateTicket = seats.map(async (seat) => {
             let uniqueCode = `${airlineCode}-${airportCode}-${flightCode}-${seat.seatNumber}`;
 
             const existingTicket = await prisma.ticket.findUnique({
@@ -385,9 +385,9 @@ const notification = async (req, res) => {
                     ticketTransaction: true,
                 },
             });
-
-            res.status(200).json({ message: "OK" });
         });
+
+        await Promise.all(generateTicket);
     } else if (
         datas.transaction_status == "cancel" ||
         datas.transaction_status == "deny" ||
