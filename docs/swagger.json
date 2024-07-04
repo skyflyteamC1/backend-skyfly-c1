@@ -7231,7 +7231,7 @@
                     }
                 }
             },
-            "put": {
+            "patch": {
                 "tags": ["Users"],
                 "summary": "Return result HIT API update user by Id",
                 "description": "This is an API for updatting user data based on Id",
