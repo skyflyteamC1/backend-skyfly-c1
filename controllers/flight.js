@@ -12,8 +12,6 @@ const prisma = new PrismaClient();
 const getAllFlight = async (req, res, next) => {
     try {
         const {
-            page = 1,
-            limit = 10,
             departureAirport,
             arrivalAirport,
             departureDate,
@@ -31,6 +29,8 @@ const getAllFlight = async (req, res, next) => {
             sort,
         } = req.query;
 
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
         const skip = (page - 1) * limit;
         const take = parseInt(limit);
 
